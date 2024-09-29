@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Contact Form</title>
+
+    <!-- Include Toastify.js for notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.css" rel="stylesheet">
+
+    <!-- Google Fonts for modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Basic reset for consistent rendering across browsers */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        form:hover {
+            transform: scale(1.02);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #4A90E2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #4A90E2;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #357ABD;
+        }
+
+        /* Responsive design for mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            form {
+                padding: 30px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            input, textarea {
+                padding: 10px;
+            }
+
+            button {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <form id="contact-form">
+        <h2>Contact Us</h2>
+        
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your Name" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Your Email" > <!-- Default Email -->
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" placeholder="Your Message" required></textarea>
+
+        <button type="submit">Send Message</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('contact-form');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Collect form data
+            const formData = {
+                name: form.name.value,
+                email: form.email.value,
+                message: form.message.value,
+                recipient_email: 'sudharsanjaynvm@gmail.com' // Default recipient email
+            };
+
+            // EmailJS API URL and parameters
+            const serviceID = 'service_4kv10yr';
+            const templateID = 'template_x869y74';
+            const userID = '1X6X64NhQgLQt9KT_'; // Your EmailJS user ID
+            const apiUrl = 'https://api.emailjs.com/api/v1.0/email/send';
+
+            // Prepare data for EmailJS
+            const emailData = {
+                service_id: serviceID,
+                template_id: templateID,
+                user_id: userID,
+                template_params: formData
+            };
+
+            // Send the email using the EmailJS API
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(emailData)
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    Toastify({
+                        text: "Your message has been sent!",
+                        backgroundColor: "green",
+                        duration: 1000
+                    }).showToast();
+                    form.reset();
+                } else {
+                    throw new Error('Failed to send the message.');
+                }
+            })
+            .catch(function(error) {
+                Toastify({
+                    text: "Failed to send the message. Please try again.",
+                    backgroundColor: "red",
+                    duration: 1000
+                }).showToast();
+            });
+        });
+    </script>
+
+</body>
+</html>
