@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academy Text Editor</title>
+  <!-- QuillJS CSS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e2f;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background-color: #2c2c3c;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    h1 {
+      color: #f0f0f5;
+      font-size: 1.6rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px;
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #444;
+      margin-bottom: 15px;
+    }
+
+    #editor {
+      height: 300px;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .ql-toolbar .ql-formats button, .ql-toolbar .ql-formats select {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    .ql-toolbar .ql-formats button:hover, .ql-toolbar .ql-formats select:hover {
+      color: #00acee;
+    }
+
+    #save-button {
+      display: inline-block;
+      margin: 15px 0;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #ffffff;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #save-button, #download-button {
+      display: inline-block;
+      margin: 15px 5px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #ffffff;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #save-button:hover, #download-button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Text direction button styles */
+    .ql-font .ql-picker-label[data-value="arial"]::before { content: 'Arial'; font-family: Arial, sans-serif; }
+    .ql-font .ql-picker-label[data-value="serif"]::before { content: 'Serif'; font-family: serif; }
+    .ql-font .ql-picker-label[data-value="sans-serif"]::before { content: 'Sans Serif'; font-family: sans-serif; }
+
+    .ql-font-arial { font-family: Arial, sans-serif; }
+    #save-button:hover {
+      background-color: #0056b3;
+    }
+
+    #output {
+      padding: 15px;
+      background-color: rgba(50, 50, 70, 0.9);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    #output h3 {
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+    
+
+    #output * {
+      color: #ffffff;
+    }
+
+    /* Styles for text sizes */
+    .ql-size-small { font-size: 0.75em; }
+    .ql-size-large { font-size: 1.5em; }
+    .ql-size-huge { font-size: 2.5em; }
+  </style>
+</head>
+<body>
+  <h1>Academy Text Editor</h1>
+  <div class="container">
+    <div id="toolbar">
+      <select class="ql-font"></select>
+      <select class="ql-size"></select>
+      <button class="ql-bold">B</button>
+      <button class="ql-italic">I</button>
+      <button class="ql-underline">U</button>
+      <select class="ql-align"></select>
+      <button class="ql-strike">S</button>
+      <select class="ql-color"></select>
+      <select class="ql-background"></select>
+      <button class="ql-link">🔗</button>
+      <button class="ql-image">🖼️</button>
+      <button class="ql-video">📹</button>
+      <button class="ql-code-block">Code</button>
+      <button class="ql-clean">Clear</button>
+    </div>
+    <div id="editor">
+      <p>Welcome to the Academy Text Editor. Start creating your content!</p>
+    </div>
+    <a id="save-button" onclick="saveContent()">Save Changes</a>
+    <a id="download-button" onclick="downloadContent()">Download as Document</a>
+    
+  </div>
+
+  <div id="output">
+    <h3>Preview:</h3>
+    <div id="preview"></div>
+  </div>
+
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script>
+    const quill = new Quill('#editor', {
+      modules: {
+        toolbar: {
+          container: '#toolbar',
+          handlers: {
+            image: imageHandler,
+            video: videoHandler
+          }
+        }
+      },
+      placeholder: 'Compose your text...',
+      theme: 'snow'
+    });
+
+    function imageHandler() {
+      const uploadOption = prompt("Choose Image Source:\n1. From URL\n2. From Computer", "1");
+      const range = quill.getSelection();
+      if (uploadOption === "1") {
+        const imageUrl = prompt("Enter image URL:");
+        if (imageUrl) {
+          const width = prompt("Enter image width (optional):", "300");
+          const height = prompt("Enter image height (optional):", "200");
+          const imageAttributes = `<img src="${imageUrl}" width="${width}" height="${height}">`;
+          quill.clipboard.dangerouslyPasteHTML(range.index, imageAttributes);
+        }
+      } else if (uploadOption === "2") {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.style.display = 'none';
+
+        input.onchange = () => {
+          const file = input.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const width = prompt("Enter image width :", "300");
+              const height = prompt("Enter image height :", "200");
+              const imageAttributes = `<img src="${reader.result}" width="${width}" height="${height}">`;
+              quill.clipboard.dangerouslyPasteHTML(range.index, imageAttributes);
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+      }
+    }
+
+  function videoHandler() {
+    const videoUrl = prompt("Enter video URL:");
+    if (videoUrl) {
+      const width = prompt("Enter video width :", "500");
+      const height = prompt("Enter video height :", "300");
+
+      const range = quill.getSelection();
+      const videoAttributes = `<iframe src="${videoUrl}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
+      quill.clipboard.dangerouslyPasteHTML(range.index, videoAttributes);
+    }
+  }
+  function saveContent() {
+    const html = quill.root.innerHTML;
+    document.getElementById('preview').innerHTML = html;
+  }
+  function downloadContent() {
+    const html = quill.root.innerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'document.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+  
+</body>
+</html>
