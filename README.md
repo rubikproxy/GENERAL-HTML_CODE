@@ -1,3 +1,1 @@
-V.SANJAY KUMAR
-Email signature 
-This is an e-mail Signatures
+THIS IS GENRAL HTML PROJECT USING HTML ONLY
